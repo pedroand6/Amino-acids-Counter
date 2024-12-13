@@ -1,10 +1,13 @@
+from math import exp
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import style
 import numpy as np
+import chart
 import os
+import re
 
 def main(page: ft.Page):
     def on_dialog_result(e: ft.FilePickerResultEvent):
@@ -38,6 +41,7 @@ def main(page: ft.Page):
         mask = (df['Protein Accession'].values == id)
         start = (df['Start'].values)[mask]
         end = (df['End'].values)[mask]
+        peptidios = (df['Peptide'].values)[mask]
 
         contador = np.full(max(end)-min(start)+1, 0)
 
@@ -47,26 +51,39 @@ def main(page: ft.Page):
         linhas = list(range(min(start), max(end)+1))
         data = {'Line': linhas, 'Count': contador}
 
+        aminoacidos = np.full((max(end)-min(start)+1, 1), '')
+        for i in range(len(peptidios)):
+            thisAminoacidos = re.sub(r'\([^)]*\)', '', peptidios[i]).split(".")
+            for j in thisAminoacidos:
+                if len(j) > 1:
+                    #print(j end[i] - start[i] + 1)
+                    aminoacidos[start[i]-1:end[i]] = np.array([list(word) for word in j])
+
+
         result = pd.DataFrame(data=data)
 
-        figure = plt.figure(figsize=(30,8))
+        figure = plt.figure(figsize=(30,24))
         print(plt.style.available)
-        #plt.style.use('seaborn-darkgrid')
 
         plt.bar(linhas, contador, color ='maroon')
         plt.xlabel('Linha')
         plt.ylabel('Contagem')
 
-        plt.title(f'Contagem da proteína {id}')
+        plt.title(f'Contagem de Aminoacidos por posiçao da proteina {id}')
 
         plt.plot()
 
-        graph.figure = figure
+        #graph.figure = figure
+        graph.linhas = linhas
+        graph.contador = contador
+        graph.aminoacidos = list(aminoacidos)
+        graph.build()
         page.update()
 
 
-    idField = ft.TextField("", hint_text="Insira o ID da cobertura", on_submit=lambda e: getResults(e, pd.read_csv(f'{arquivo.value}')))
-    graph = MatplotlibChart(plt.figure(figsize=(12,4)), expand=True)
+    idField = ft.TextField("", hint_text="Insira o ID da proteina", on_submit=lambda e: getResults(e, pd.read_csv(f'{arquivo.value}')))
+    #graph = MatplotlibChart(plt.figure(), expand=True)
+    graph = chart.ProteinChart(page, [1,2,3], [1,2,3], ['A', 'B', 'C'])
 
     def route_change(route):
         page.views.clear()
@@ -74,7 +91,7 @@ def main(page: ft.Page):
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Contador"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    ft.AppBar(title=ft.Text("Contador de Aminoacidos por posiçao"), bgcolor=ft.colors.SURFACE_VARIANT),
                     btnArquivo,
                     ftArquivo
                 ],
