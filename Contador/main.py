@@ -107,7 +107,12 @@ def main(page: ft.Page):
                         idField,
                         ft.Row(
                             [
-                                graph
+                                ft.InteractiveViewer(
+                                    min_scale=0.1,
+                                    max_scale=15,
+                                    boundary_margin=ft.margin.only(0,50, float(graph.width)*100, 50),
+                                    content=graph,
+                                )
                             ], width=900)
                     ],
                     bgcolor=ft.Colors.BLUE_200

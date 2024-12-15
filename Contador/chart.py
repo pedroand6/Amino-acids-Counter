@@ -1,7 +1,7 @@
 import flet as ft
 import pandas as pd
 
-class ProteinChart(ft.UserControl):
+class ProteinChart(ft.BarChart):
 
     def __init__(self, page, linhas=[], contador=[], aminoacidos=[]):
         super().__init__()
@@ -9,48 +9,61 @@ class ProteinChart(ft.UserControl):
         self.linhas = linhas
         self.contador = contador
         self.aminoacidos = aminoacidos
-        self.barChartGroups = []
-    
+
+        self.height = 500
+        
+        self.expand_loose = True
+        self.animate = ft.animation.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
+        self.horizontal_grid_lines=ft.ChartGridLines(
+            color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
+        )
+        self.tooltip_bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.GREY_300)
+        self.max_y=80
+        self.interactive=True
+        self.expand=True
+        self.border=ft.border.all(1, ft.Colors.GREY_400)
+        self.left_axis=ft.ChartAxis(
+            labels_size=40, title=ft.Text("Contagem de Aminoacidos"), title_size=40
+        )
+
+        self.makeGraph()
 
     def getBarChartGroups(self):
+        barChartGroups = []
+        print(f"linhas: {len(self.linhas)}")
         for i in range(len(self.linhas)):
-            self.barChartGroups.append(
+            barChartGroups.append(
                 ft.BarChartGroup(
                     x=self.linhas[i], 
                     bar_rods=[
                         ft.BarChartRod(
                             from_y=0,
                             to_y=self.contador[i],
-                            width=40,
+                            width=20,
                             color=ft.Colors.AMBER,
-                            tooltip=self.aminoacidos[i],
-                            border_radius=1
-                        ),
-                ])
+                            tooltip=self.aminoacidos[i][0],
+                            border_radius=1,
+                        )],
+                )
             )
+
+        return barChartGroups
 
     def getChartAxis(self):
         labels = []
         for i in range(len(self.linhas)):
             labels.append(
-                ft.ChartAxisLabel(value=self.linhas[i], label=ft.Container(ft.Text(f"{self.linhas[i]}"), padding=3))
+                ft.ChartAxisLabel(value=self.linhas[i], label=ft.Container(ft.Text(f"{self.linhas[i]}")))
             )
         
         return ft.ChartAxis(labels=labels, labels_size=40)
+    
+    def makeGraph(self):
+        self.height = 500
+        self.width = 100 * len(self.linhas)
+        self.bar_groups=self.getBarChartGroups()
+        self.bottom_axis=self.getChartAxis()
 
-    def build(self):
-        self.view = ft.BarChart(
-            bar_groups=self.barChartGroups,
-            border=ft.border.all(1, ft.Colors.GREY_400),
-            left_axis=ft.ChartAxis(
-                labels_size=40, title=ft.Text("Contagem de Aminoacidos por posiçao"), title_size=40
-            ),
-            bottom_axis=self.getChartAxis(),
-            horizontal_grid_lines=ft.ChartGridLines(
-                color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
-            ),
-            tooltip_bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.GREY_300),
-            max_y=80,
-            interactive=True,
-            expand=True,
-        )
+    def before_update(self):
+        self.makeGraph()
+        return super().before_update()
