@@ -1,14 +1,16 @@
+from pydoc import text
 import flet as ft
 import pandas as pd
 
 class ProteinChart(ft.BarChart):
 
-    def __init__(self, page, linhas=[], contador=[], aminoacidos=[]):
+    def __init__(self, page, linhas=[], contador=[], aminoacidos=[], cdr = [(0,0), (0,0), (0,0)]):
         super().__init__()
         self.page = page
         self.linhas = linhas
         self.contador = contador
         self.aminoacidos = aminoacidos
+        self.cdr = cdr
 
         self.height = 500
         
@@ -18,8 +20,7 @@ class ProteinChart(ft.BarChart):
             color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
         )
         self.tooltip_bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.GREY_300)
-        self.max_y=80
-        self.interactive=True
+        self.interactive=False
         self.expand=True
         self.border=ft.border.all(1, ft.Colors.GREY_400)
         self.left_axis=ft.ChartAxis(
@@ -30,7 +31,6 @@ class ProteinChart(ft.BarChart):
 
     def getBarChartGroups(self):
         barChartGroups = []
-        print(f"linhas: {len(self.linhas)}")
         for i in range(len(self.linhas)):
             barChartGroups.append(
                 ft.BarChartGroup(
@@ -40,12 +40,20 @@ class ProteinChart(ft.BarChart):
                             from_y=0,
                             to_y=self.contador[i],
                             width=20,
-                            color=ft.Colors.AMBER,
-                            tooltip=self.aminoacidos[i][0],
+                            color=ft.Colors.RED,
                             border_radius=1,
                         )],
                 )
             )
+
+        for i in barChartGroups[((self.cdr[0][0]-1)//3):(self.cdr[0][0]//3)]:
+            i.bar_rods[0].color = ft.Colors.BLUE
+
+        for i in barChartGroups[((self.cdr[1][0]-1)//3):(self.cdr[1][0]//3)]:
+            i.bar_rods[0].color = ft.Colors.ORANGE
+
+        for i in barChartGroups[((self.cdr[2][0]-1)//3):(self.cdr[2][0]//3)]:
+            i.bar_rods[0].color = ft.Colors.GREEN
 
         return barChartGroups
 
@@ -53,14 +61,16 @@ class ProteinChart(ft.BarChart):
         labels = []
         for i in range(len(self.linhas)):
             labels.append(
-                ft.ChartAxisLabel(value=self.linhas[i], label=ft.Container(ft.Text(f"{self.linhas[i]}")))
+                ft.ChartAxisLabel(value=self.linhas[i], label=ft.Container(ft.Text(f"{self.linhas[i]}\n{self.aminoacidos[i][0]}", text_align=ft.TextAlign.CENTER)))
             )
         
         return ft.ChartAxis(labels=labels, labels_size=40)
     
     def makeGraph(self):
+        if(len(self.contador) > 0):
+            self.max_y=max(self.contador)
         self.height = 500
-        self.width = 100 * len(self.linhas)
+        self.width = 60 * (len(self.linhas)+1)
         self.bar_groups=self.getBarChartGroups()
         self.bottom_axis=self.getChartAxis()
 
