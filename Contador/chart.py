@@ -46,13 +46,13 @@ class ProteinChart(ft.BarChart):
                 )
             )
 
-        for i in barChartGroups[((self.cdr[0][0]-1)//3):(self.cdr[0][0]//3)]:
+        for i in barChartGroups[((self.cdr[0][0]-1)//3):(self.cdr[0][1]//3)]:
             i.bar_rods[0].color = ft.Colors.BLUE
 
-        for i in barChartGroups[((self.cdr[1][0]-1)//3):(self.cdr[1][0]//3)]:
+        for i in barChartGroups[((self.cdr[1][0]-1)//3):(self.cdr[1][1]//3)]:
             i.bar_rods[0].color = ft.Colors.ORANGE
 
-        for i in barChartGroups[((self.cdr[2][0]-1)//3):(self.cdr[2][0]//3)]:
+        for i in barChartGroups[((self.cdr[2][0]-1)//3):(self.cdr[2][1]//3)]:
             i.bar_rods[0].color = ft.Colors.GREEN
 
         return barChartGroups
@@ -68,7 +68,7 @@ class ProteinChart(ft.BarChart):
     
     def makeGraph(self):
         if(len(self.contador) > 0):
-            self.max_y=max(self.contador)
+            self.max_y=(max(self.contador) // 10 + 1) * 10
         self.height = 500
         self.width = 60 * (len(self.linhas)+1)
         self.bar_groups=self.getBarChartGroups()

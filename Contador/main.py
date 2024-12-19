@@ -1,3 +1,4 @@
+from ctypes import alignment
 from math import exp
 from turtle import width
 import flet as ft
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 import numpy as np
 import chart
+from dropdownID import DropdownID
 import os
 import re
 from crowelab_pyir import PyIR
@@ -35,12 +37,13 @@ def main(page: ft.Page):
         
         page.go("/results")
 
-    def getResults(e, df):
+    def getResults(df):
         '''
         (int, dataframe) -> None
         '''
-        id = e.control.value
-        print(id)
+        page.go("/loading")
+        
+        id = idField.value
         mask = (df['Protein Accession'].values == id)
         start = (df['Start'].values)[mask]
         end = (df['End'].values)[mask]
@@ -54,11 +57,12 @@ def main(page: ft.Page):
         linhas = list(range(min(start), max(end)+1))
         data = {'Line': linhas, 'Count': contador}
 
-        aminoacidos = np.full((max(end)-min(start)+1, 1), '')
+        aminoacidos = np.full((max(end), 1), '')
         for i in range(len(peptidios)):
             thisAminoacidos = re.sub(r'\([^)]*\)', '', peptidios[i]).split(".")
             for j in thisAminoacidos:
                 if len(j) > 1:
+                    print(end[i], len(aminoacidos))
                     aminoacidos[start[i]-1:end[i]] = np.array([list(word) for word in j])
 
 
@@ -80,9 +84,20 @@ def main(page: ft.Page):
         result = pyirfile.run()
 
         #Get results
-        cdr1 = (int(list(result.values())[0]['cdr1_start']), int(list(result.values())[0]['cdr1_end']))
-        cdr2 = (int(list(result.values())[0]['cdr2_start']), int(list(result.values())[0]['cdr2_end']))
-        cdr3 = (int(list(result.values())[0]['cdr3_start']), int(list(result.values())[0]['cdr3_end']))
+        try:
+            cdr1 = (int(list(result.values())[0]['cdr1_start']), int(list(result.values())[0]['cdr1_end']))
+        except:
+            cdr1 = (0, 0)
+        
+        try:
+            cdr2 = (int(list(result.values())[0]['cdr2_start']), int(list(result.values())[0]['cdr2_end']))
+        except:
+            cdr2 = (0, 0)
+            
+        try:
+            cdr3 = (int(list(result.values())[0]['cdr3_start']), int(list(result.values())[0]['cdr3_end']))
+        except:
+            cdr3 = (0, 0)
 
         figure = plt.figure(figsize=(30,16))
 
@@ -101,10 +116,14 @@ def main(page: ft.Page):
         graph.aminoacidos = list(aminoacidos)
         graph.cdr = [cdr1, cdr2, cdr3]
         graph.build()
+        
+        page.update()
+        page.go("/")
+        page.go("/results")
         page.update()
 
-
-    idField = ft.TextField("", hint_text="Insira o ID da proteina", on_submit=lambda e: getResults(e, pd.read_csv(f'{arquivo.value}')))
+    submitBtn = ft.ElevatedButton(text="Submit", on_click=lambda _: getResults(pd.read_csv(f'{arquivo.value}')))
+    idField = DropdownID(page)
     graphMatPlot = MatplotlibChart(plt.figure(), expand=True)
     graph = chart.ProteinChart(page)
 
@@ -117,31 +136,46 @@ def main(page: ft.Page):
                     ft.AppBar(title=ft.Text("Contador de Aminoacidos por posiçao"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
                     btnArquivo,
                     ftArquivo
-                ],
-                bgcolor=ft.Colors.BLUE_200
+                ]
             )
         )
         if page.route == "/results":
+            idField.df = pd.read_csv(f'{arquivo.value}')
             page.views.append(
                 ft.View(
-                    "/store",
+                    "/results",
                     [
                         ft.AppBar(title=ft.Text("Resultados"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
                         idField,
-                        ft.Row(
-                            [
-                                ft.InteractiveViewer(
-                                    min_scale=0.1,
-                                    max_scale=15,
-                                    boundary_margin=ft.margin.only(0,50, float(graph.width)*100, 50),
-                                    content=graph,
-                                )
-                            ], width=page.width),
+                        submitBtn,
+                        ft.Card(
+                            content=ft.Row([ft.InteractiveViewer(
+                                        min_scale=0.1,
+                                        max_scale=15,
+                                        boundary_margin=ft.margin.only(0,50, float(graph.width), 50),
+                                        content=graph,
+                                        scale_enabled=False,
+                                    )], width=page.width, expand=True), 
+                            width=page.width, expand=True),
                         ft.Card(
                             content=graphMatPlot,
                             width=page.width
                         ),
                     ],
+                    scroll=ft.ScrollMode.AUTO
+                )
+            )
+        if page.route == "/loading":
+            page.views.append(
+                ft.View(
+                    "/loading",
+                    [
+                        ft.Container(height=page.height//2),
+                        ft.ProgressRing(),
+                        ft.Container(height=page.height//2),
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    vertical_alignment=ft.MainAxisAlignment.CENTER,
                     scroll=ft.ScrollMode.AUTO
                 )
             )
@@ -151,9 +185,15 @@ def main(page: ft.Page):
         page.views.pop()
         top_view = page.views[-1]
         page.go(top_view.route)
+        
+    def updateView(view):
+        page.go("/loading")
+        page.go("/results")
+        page.update()
 
     page.on_route_change = route_change
     page.on_view_pop = view_pop
+    page.on_resized = updateView
     page.go(page.route)
 
 ft.app(main)
