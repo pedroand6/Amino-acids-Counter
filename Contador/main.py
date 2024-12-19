@@ -1,7 +1,4 @@
-from ctypes import alignment
-from math import exp
 import time
-from turtle import width
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
 import pandas as pd
@@ -10,7 +7,6 @@ from matplotlib import style
 import numpy as np
 import chart
 from dropdownID import DropdownID
-import os
 import re
 from crowelab_pyir import PyIR
 from reverseTranslator import aa2na
