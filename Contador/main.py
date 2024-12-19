@@ -1,5 +1,6 @@
 from ctypes import alignment
 from math import exp
+import time
 from turtle import width
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
@@ -62,7 +63,6 @@ def main(page: ft.Page):
             thisAminoacidos = re.sub(r'\([^)]*\)', '', peptidios[i]).split(".")
             for j in thisAminoacidos:
                 if len(j) > 1:
-                    print(end[i], len(aminoacidos))
                     aminoacidos[start[i]-1:end[i]] = np.array([list(word) for word in j])
 
 
@@ -117,8 +117,10 @@ def main(page: ft.Page):
         graph.cdr = [cdr1, cdr2, cdr3]
         graph.build()
         
-        page.update()
-        page.go("/")
+        page.go("/results")
+        time.sleep(0.05)
+        page.go("/loading")
+        time.sleep(0.05)
         page.go("/results")
         page.update()
 
@@ -148,15 +150,27 @@ def main(page: ft.Page):
                         ft.AppBar(title=ft.Text("Resultados"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
                         idField,
                         submitBtn,
-                        ft.Card(
-                            content=ft.Row([ft.InteractiveViewer(
-                                        min_scale=0.1,
-                                        max_scale=15,
+                        ft.Stack([
+                            ft.Row([ft.InteractiveViewer(
                                         boundary_margin=ft.margin.only(0,50, float(graph.width), 50),
                                         content=graph,
                                         scale_enabled=False,
-                                    )], width=page.width, expand=True), 
-                            width=page.width, expand=True),
+                                    )], width=page.width, expand=True),
+                            ft.Row([
+                                ft.Card(
+                                    content=ft.Column([
+                                        ft.Row([
+                                            ft.Text("CDR1"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.Colors.BLUE)
+                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                        ft.Row([
+                                            ft.Text("CDR2"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.Colors.ORANGE)
+                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                        ft.Row([
+                                            ft.Text("CDR3"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.Colors.GREEN)
+                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                    ]), width=100
+                                )], alignment=ft.MainAxisAlignment.END),
+                        ], width=page.width, expand=True),
                         ft.Card(
                             content=graphMatPlot,
                             width=page.width
@@ -176,7 +190,7 @@ def main(page: ft.Page):
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     vertical_alignment=ft.MainAxisAlignment.CENTER,
-                    scroll=ft.ScrollMode.AUTO
+                    scroll=ft.ScrollMode.HIDDEN
                 )
             )
         page.update()
@@ -187,8 +201,10 @@ def main(page: ft.Page):
         page.go(top_view.route)
         
     def updateView(view):
+        route = page.route
         page.go("/loading")
-        page.go("/results")
+        time.sleep(0.05)
+        page.go(route)
         page.update()
 
     page.on_route_change = route_change
