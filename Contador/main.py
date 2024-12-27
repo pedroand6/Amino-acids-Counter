@@ -97,7 +97,12 @@ def main(page: ft.Page):
 
         figure = plt.figure(figsize=(30,16))
 
-        plt.bar(linhas, contador, color ='maroon')
+        colors = np.full(len(linhas), 'maroon')
+        colors[((cdr1[0]-1)//3):(cdr1[1]//3)] = 'blue'
+        colors[((cdr2[0]-1)//3):(cdr2[1]//3)] = 'orange'
+        colors[((cdr3[0]-1)//3):(cdr3[1]//3)] = 'green'
+
+        plt.bar(linhas, contador, color = colors)
         plt.xlabel('Linha')
         plt.ylabel('Contagem')
 
