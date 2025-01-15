@@ -3,7 +3,6 @@ import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib import style
 import numpy as np
 import chart
 from dropdownID import DropdownID
@@ -14,6 +13,7 @@ from reverseTranslator import aa2na
 def main(page: ft.Page):
     def on_dialog_result(e: ft.FilePickerResultEvent):
         arquivo.value = e.files[0].path
+        arqName.value = e.files[0].name
         page.update()
 
     file_picker = ft.FilePicker(on_result=on_dialog_result)
@@ -23,12 +23,14 @@ def main(page: ft.Page):
     btnArquivo = ft.ElevatedButton("Choose file...", on_click=lambda _: file_picker.pick_files())
 
     arquivo = ft.Text("", size=20)
+    arqName = ft.Text("", size=20)
     ftArquivo = ft.Row([
-                arquivo,
+                arqName,
                 ft.IconButton(icon=ft.icons.SEND, icon_size=20, highlight_color=ft.Colors.RED, hover_color=ft.Colors.GREY_500, on_click=lambda e: ViewResults(e))
             ])
     
     def ViewResults(e):
+        page.go("/results")
         if arquivo.value == "":
             return
         
@@ -153,10 +155,11 @@ def main(page: ft.Page):
                         submitBtn,
                         ft.Stack([
                             ft.Row([ft.InteractiveViewer(
-                                        boundary_margin=ft.margin.only(0,50, float(graph.width), 50),
+                                        boundary_margin=ft.margin.only(0, 50, float(graph.width), 50),
                                         content=graph,
                                         scale_enabled=False,
-                                    )], width=page.width, expand=True),
+                                        pan_enabled=False
+                                    )], width=page.width, expand=True, scroll=ft.ScrollMode.ALWAYS),
                             ft.Row([
                                 ft.Card(
                                     content=ft.Column([

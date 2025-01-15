@@ -13,6 +13,7 @@ class ProteinChart(ft.BarChart):
         self.cdr = cdr
 
         self.height = 500
+        self.scale = 0.98
         
         self.expand_loose = True
         self.animate = ft.animation.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
@@ -20,7 +21,7 @@ class ProteinChart(ft.BarChart):
             color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
         )
         self.tooltip_bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.GREY_300)
-        self.interactive=False
+        self.interactive=True
         self.expand=True
         self.border=ft.border.all(1, ft.Colors.GREY_400)
         self.left_axis=ft.ChartAxis(
@@ -42,6 +43,7 @@ class ProteinChart(ft.BarChart):
                             width=20,
                             color=ft.Colors.RED,
                             border_radius=1,
+                            tooltip=self.contador[i]
                         )],
                 )
             )

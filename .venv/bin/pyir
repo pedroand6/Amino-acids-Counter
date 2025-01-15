@@ -1,0 +1,19 @@
+#!/home/mousedesvio/Contador-de-Aminoacidos/Amino-acids-Counter/.venv/bin/python3
+from crowelab_pyir import PyIR
+import multiprocessing
+import os
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    try:
+        py_ir = PyIR(is_api=False)
+        py_ir.run()
+
+    finally:
+        try:
+            if not py_ir.args['debug']:
+                for f in os.listdir(py_ir.args['tmp_dir']):
+                    if 'pyir_' in f:
+                        os.remove(os.path.join(py_ir.args['tmp_dir'], f))
+        except:
+            pass
