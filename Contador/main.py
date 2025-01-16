@@ -97,18 +97,31 @@ def main(page: ft.Page):
         except:
             cdr3 = (0, 0)
 
-        figure = plt.figure(figsize=(30,16))
+        figure = plt.figure(figsize=(12,6))
+        
+        plt.style.use("seaborn-v0_8-darkgrid")
 
         colors = np.full(len(linhas), 'maroon')
         colors[((cdr1[0]-1)//3):(cdr1[1]//3)] = 'blue'
         colors[((cdr2[0]-1)//3):(cdr2[1]//3)] = 'orange'
         colors[((cdr3[0]-1)//3):(cdr3[1]//3)] = 'green'
+        
+        bars = plt.bar(linhas, contador, color=colors, edgecolor='black', linewidth=0.7)
+        
+        plt.title(f'Contagem de aminoácidos da proteina {id}', fontsize=18, weight='bold', color="darkblue", pad=20)
+        plt.xlabel("Posição", fontsize=14, labelpad=10)
+        plt.ylabel("Contagem", fontsize=14, labelpad=10)
+        
+        ax = plt.gca()
 
-        plt.bar(linhas, contador, color = colors)
-        plt.xlabel('Linha')
-        plt.ylabel('Contagem')
+        # Removendo borda superior e lateral para um visual moderno
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
-        plt.title(f'Contagem de Aminoacidos por posiçao da proteina {id}')
+        # Ajustes finais
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.tight_layout()
 
         plt.plot()
 
@@ -138,7 +151,7 @@ def main(page: ft.Page):
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Contador de Aminoacidos por posiçao"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
+                    ft.AppBar(title=ft.Text("Contador de Aminoacidos por posição"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
                     btnArquivo,
                     ftArquivo
                 ]
