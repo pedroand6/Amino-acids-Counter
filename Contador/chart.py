@@ -13,17 +13,17 @@ class ProteinChart(ft.BarChart):
         self.cdr = cdr
 
         self.height = 500
-        self.scale = 0.98
+        self.scale = 0.95
         
         self.expand_loose = True
         self.animate = ft.animation.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
         self.horizontal_grid_lines=ft.ChartGridLines(
-            color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
+            color=ft.colors.GREY_300, width=1, dash_pattern=[3, 3]
         )
-        self.tooltip_bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.GREY_300)
+        self.tooltip_bgcolor=ft.colors.with_opacity(0.5, ft.colors.GREY_300)
         self.interactive=True
         self.expand=True
-        self.border=ft.border.all(1, ft.Colors.GREY_400)
+        self.border=ft.border.all(1, ft.colors.GREY_400)
         self.left_axis=ft.ChartAxis(
             labels_size=40, title=ft.Text("Contagem de Aminoacidos"), title_size=40
         )
@@ -41,7 +41,7 @@ class ProteinChart(ft.BarChart):
                             from_y=0,
                             to_y=self.contador[i],
                             width=20,
-                            color=ft.Colors.RED,
+                            color=ft.colors.RED,
                             border_radius=1,
                             tooltip=self.contador[i]
                         )],
@@ -49,13 +49,13 @@ class ProteinChart(ft.BarChart):
             )
 
         for i in barChartGroups[((self.cdr[0][0]-1)//3):(self.cdr[0][1]//3)]:
-            i.bar_rods[0].color = ft.Colors.BLUE
+            i.bar_rods[0].color = ft.colors.BLUE
 
         for i in barChartGroups[((self.cdr[1][0]-1)//3):(self.cdr[1][1]//3)]:
-            i.bar_rods[0].color = ft.Colors.ORANGE
+            i.bar_rods[0].color = ft.colors.ORANGE
 
         for i in barChartGroups[((self.cdr[2][0]-1)//3):(self.cdr[2][1]//3)]:
-            i.bar_rods[0].color = ft.Colors.GREEN
+            i.bar_rods[0].color = ft.colors.GREEN
 
         return barChartGroups
 
@@ -72,7 +72,7 @@ class ProteinChart(ft.BarChart):
         if(len(self.contador) > 0):
             self.max_y=(max(self.contador) // 10 + 1) * 10
         self.height = 500
-        self.width = 60 * (len(self.linhas)+1)
+        self.width = 40 * (len(self.linhas)+1)
         self.bar_groups=self.getBarChartGroups()
         self.bottom_axis=self.getChartAxis()
 

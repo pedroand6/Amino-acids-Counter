@@ -1,4 +1,5 @@
 import time
+from turtle import bgcolor
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
 import pandas as pd
@@ -26,7 +27,7 @@ def main(page: ft.Page):
     arqName = ft.Text("", size=20)
     ftArquivo = ft.Row([
                 arqName,
-                ft.IconButton(icon=ft.icons.SEND, icon_size=20, highlight_color=ft.Colors.RED, hover_color=ft.Colors.GREY_500, on_click=lambda e: ViewResults(e))
+                ft.IconButton(icon=ft.icons.SEND, icon_size=20, highlight_color=ft.colors.RED, hover_color=ft.colors.GREY_500, on_click=lambda e: ViewResults(e))
             ])
     
     def ViewResults(e):
@@ -106,7 +107,7 @@ def main(page: ft.Page):
         colors[((cdr2[0]-1)//3):(cdr2[1]//3)] = 'orange'
         colors[((cdr3[0]-1)//3):(cdr3[1]//3)] = 'green'
         
-        bars = plt.bar(linhas, contador, color=colors, edgecolor='black', linewidth=0.7)
+        bars = plt.bar(linhas, contador, color=colors, linewidth=0.7)
         
         plt.title(f'Contagem de aminoácidos da proteina {id}', fontsize=18, weight='bold', color="darkblue", pad=20)
         plt.xlabel("Posição", fontsize=14, labelpad=10)
@@ -151,7 +152,7 @@ def main(page: ft.Page):
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Contador de Aminoacidos por posição"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
+                    ft.AppBar(title=ft.Text("Contador de Aminoacidos por posição"), bgcolor=ft.colors.ON_SURFACE_VARIANT),
                     btnArquivo,
                     ftArquivo
                 ]
@@ -163,37 +164,43 @@ def main(page: ft.Page):
                 ft.View(
                     "/results",
                     [
-                        ft.AppBar(title=ft.Text("Resultados"), bgcolor=ft.Colors.ON_SURFACE_VARIANT),
-                        idField,
-                        submitBtn,
+                        ft.AppBar(title=ft.Text("Resultados"), bgcolor=ft.colors.ON_SURFACE_VARIANT),
+                        ft.ResponsiveRow([idField, submitBtn]),
                         ft.Stack([
-                            ft.Row([ft.InteractiveViewer(
-                                        boundary_margin=ft.margin.only(0, 50, float(graph.width), 50),
+                            ft.Container(
+                                content=ft.Row([ft.InteractiveViewer(
                                         content=graph,
                                         scale_enabled=False,
-                                        pan_enabled=False
-                                    )], width=page.width, expand=True, scroll=ft.ScrollMode.ALWAYS),
+                                        pan_enabled=False,
+                                    )], width=page.width*0.8, scroll=ft.ScrollMode.ALWAYS),
+                                border_radius=5,
+                                border=ft.Border(None, None, ft.BorderSide(1, ft.colors.GREY_400),
+                                                 ft.BorderSide(1, ft.colors.GREY_400)),
+                                bgcolor=ft.colors.WHITE,
+                                padding=ft.padding.all(10)
+                            ),
                             ft.Row([
                                 ft.Card(
                                     content=ft.Column([
                                         ft.Row([
-                                            ft.Text("CDR1"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.Colors.BLUE)
+                                            ft.Text("CDR1"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.BLUE)
                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                         ft.Row([
-                                            ft.Text("CDR2"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.Colors.ORANGE)
+                                            ft.Text("CDR2"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.ORANGE)
                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                         ft.Row([
-                                            ft.Text("CDR3"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.Colors.GREEN)
+                                            ft.Text("CDR3"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.GREEN)
                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                     ]), width=100
                                 )], alignment=ft.MainAxisAlignment.END),
-                        ], width=page.width, expand=True),
+                        ], width=page.width, alignment=ft.alignment.top_center),
                         ft.Card(
                             content=graphMatPlot,
-                            width=page.width
+                            width=page.width*0.8,
                         ),
                     ],
-                    scroll=ft.ScrollMode.AUTO
+                    scroll=ft.ScrollMode.AUTO,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
                 )
             )
         if page.route == "/loading":
