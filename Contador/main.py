@@ -1,5 +1,4 @@
 import time
-from turtle import bgcolor
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
 import pandas as pd
@@ -13,26 +12,20 @@ from reverseTranslator import aa2na
 
 def main(page: ft.Page):
     def on_dialog_result(e: ft.FilePickerResultEvent):
-        arquivo.value = e.files[0].path
         arqName.value = e.files[0].name
+        arquivo.value = e.files[0].path
         page.update()
 
     file_picker = ft.FilePicker(on_result=on_dialog_result)
     page.overlay.append(file_picker)
     page.update()
-
-    btnArquivo = ft.ElevatedButton("Choose file...", on_click=lambda _: file_picker.pick_files())
-
-    arquivo = ft.Text("", size=20)
-    arqName = ft.Text("", size=20)
-    ftArquivo = ft.Row([
-                arqName,
-                ft.IconButton(icon=ft.icons.SEND, icon_size=20, highlight_color=ft.colors.RED, hover_color=ft.colors.GREY_500, on_click=lambda e: ViewResults(e))
-            ])
+    
+    arquivo = ft.Text("")
+    arqName = ft.Text("Upload a CSV file", size=15, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS, width=page.width*0.12, text_align=ft.TextAlign.CENTER)
     
     def ViewResults(e):
         page.go("/results")
-        if arquivo.value == "":
+        if arqName.value == "Upload a CSV file":
             return
         
         page.go("/results")
@@ -141,10 +134,19 @@ def main(page: ft.Page):
         page.go("/results")
         page.update()
 
-    submitBtn = ft.ElevatedButton(text="Submit", on_click=lambda _: getResults(pd.read_csv(f'{arquivo.value}')))
+    submitBtn = ft.ElevatedButton(text="Submit", on_click=lambda _: getResults(pd.read_csv(f'{arquivo.value}')), width=100)
     idField = DropdownID(page)
     graphMatPlot = MatplotlibChart(plt.figure(), expand=True)
     graph = chart.ProteinChart(page)
+    
+    def changeBg(e):
+        btn = e.control
+        if btn.bgcolor != ft.colors.GREY_300:
+            btn.bgcolor = ft.colors.GREY_300
+            btn.update()
+        else:
+            btn.bgcolor = ft.colors.GREY_200
+            btn.update()
 
     def route_change(route):
         page.views.clear()
@@ -152,11 +154,48 @@ def main(page: ft.Page):
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Contador de Aminoacidos por posição"), bgcolor=ft.colors.ON_SURFACE_VARIANT),
-                    btnArquivo,
-                    ftArquivo
-                ]
-            )
+                    ft.AppBar(title=ft.Text("Amino acids Counter by position"), bgcolor=ft.colors.GREEN_700, color=ft.colors.GREY_200, center_title=True),
+                    ft.Column(
+                        [
+                            ft.Container(
+                                width=page.width*0.25,
+                                height=page.height*0.5,
+                                content=ft.Column(
+                                    [
+                                        ft.Container(
+                                            content=ft.Column(
+                                                [
+                                                    ft.Icon(name=ft.icons.FILE_UPLOAD_ROUNDED, color=ft.colors.GREEN_400, size=page.width*0.1),
+                                                    arqName
+                                                ],
+                                                alignment=ft.MainAxisAlignment.CENTER,
+                                                horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                                            ),
+                                            opacity=0.8,
+                                            shadow=ft.BoxShadow(
+                                                spread_radius=2,
+                                                blur_radius=15
+                                            ),
+                                            width=page.width*0.2,
+                                            height=page.width*0.2,
+                                            bgcolor=ft.colors.GREY_200,
+                                            shape=ft.BoxShape.CIRCLE,
+                                            on_hover=lambda e: changeBg(e),
+                                            on_click=lambda _: file_picker.pick_files()
+                                        ),
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                                )
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
+                    ft.CupertinoButton(text="Submit", bgcolor=ft.colors.GREEN_700, on_click=lambda e: ViewResults(e), alignment=ft.alignment.bottom_center)
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                vertical_alignment=ft.MainAxisAlignment.CENTER
+            ),
         )
         if page.route == "/results":
             idField.df = pd.read_csv(f'{arquivo.value}')
@@ -164,7 +203,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/results",
                     [
-                        ft.AppBar(title=ft.Text("Resultados"), bgcolor=ft.colors.ON_SURFACE_VARIANT),
+                        ft.AppBar(title=ft.Text("Results"), bgcolor=ft.colors.GREEN_700, color=ft.colors.GREY_200, center_title=True),
                         ft.ResponsiveRow([idField, submitBtn]),
                         ft.Stack([
                             ft.Container(
