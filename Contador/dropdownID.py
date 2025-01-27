@@ -8,6 +8,7 @@ class DropdownID(ft.Dropdown):
         super().__init__()
         self.page = page
         self.df = df
+        self.width = page.width * 0.5
         self.updateOptions()
 
     def before_update(self):
@@ -20,7 +21,10 @@ class DropdownID(ft.Dropdown):
         
         self.options.clear()
         
-        for id in self.df['Protein Accession'].unique():
+        proteinDic =  self.df['Protein Accession'].unique()
+
+        for id in proteinDic:
             self.options.append(ft.dropdown.Option(f"{id}"))
 
-        self.value = self.options[1]
+        if self.value == None:
+            self.value = proteinDic[0]

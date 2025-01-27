@@ -12,7 +12,7 @@ class ProteinChart(ft.BarChart):
         self.aminoacidos = aminoacidos
         self.cdr = cdr
 
-        self.height = 500
+        self.height = page.height*0.6
         self.scale = 0.95
         
         self.expand_loose = True
@@ -71,7 +71,6 @@ class ProteinChart(ft.BarChart):
     def makeGraph(self):
         if(len(self.contador) > 0):
             self.max_y=(max(self.contador) // 10 + 1) * 10
-        self.height = 500
         self.width = 40 * (len(self.linhas)+1)
         self.bar_groups=self.getBarChartGroups()
         self.bottom_axis=self.getChartAxis()

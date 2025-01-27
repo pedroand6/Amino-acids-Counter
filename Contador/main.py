@@ -2,6 +2,8 @@ import time
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import chart
@@ -12,8 +14,13 @@ from reverseTranslator import aa2na
 
 def main(page: ft.Page):
     def on_dialog_result(e: ft.FilePickerResultEvent):
-        arqName.value = e.files[0].name
-        arquivo.value = e.files[0].path
+        if e.files:
+            arqName.value = e.files[0].name
+            arquivo.value = e.files[0].path
+
+        if e.path:
+            graphMatPlot.figure.savefig(e.path)
+
         page.update()
 
     file_picker = ft.FilePicker(on_result=on_dialog_result)
@@ -102,9 +109,9 @@ def main(page: ft.Page):
         
         bars = plt.bar(linhas, contador, color=colors, linewidth=0.7)
         
-        plt.title(f'Contagem de aminoácidos da proteina {id}', fontsize=18, weight='bold', color="darkblue", pad=20)
-        plt.xlabel("Posição", fontsize=14, labelpad=10)
-        plt.ylabel("Contagem", fontsize=14, labelpad=10)
+        plt.title(f'Amino acids Count for protein {id}', fontsize=18, weight='bold', color="darkblue", pad=20)
+        plt.xlabel("Position", fontsize=14, labelpad=10)
+        plt.ylabel("Counting", fontsize=14, labelpad=10)
         
         ax = plt.gca()
 
@@ -116,6 +123,16 @@ def main(page: ft.Page):
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
         plt.tight_layout()
+        
+        legend = {
+            'Outside CDR': 'maroon',
+            'CDR1': 'blue',
+            'CDR2': 'orange',
+            'CDR3': 'green'
+        }
+        labels = list(legend.keys())
+        handles = [plt.Rectangle((0,0),1,1, color=legend[label]) for label in labels]
+        plt.legend(handles, labels, fontsize=12)
 
         plt.plot()
 
@@ -181,7 +198,7 @@ def main(page: ft.Page):
                                             bgcolor=ft.colors.GREY_200,
                                             shape=ft.BoxShape.CIRCLE,
                                             on_hover=lambda e: changeBg(e),
-                                            on_click=lambda _: file_picker.pick_files()
+                                            on_click=lambda _: file_picker.pick_files(allowed_extensions=["csv"], file_type=ft.FilePickerFileType.CUSTOM)
                                         ),
                                     ],
                                     alignment=ft.MainAxisAlignment.CENTER,
@@ -204,38 +221,73 @@ def main(page: ft.Page):
                     "/results",
                     [
                         ft.AppBar(title=ft.Text("Results"), bgcolor=ft.colors.GREEN_700, color=ft.colors.GREY_200, center_title=True),
-                        ft.ResponsiveRow([idField, submitBtn]),
-                        ft.Stack([
-                            ft.Container(
-                                content=ft.Row([ft.InteractiveViewer(
-                                        content=graph,
-                                        scale_enabled=False,
-                                        pan_enabled=False,
-                                    )], width=page.width*0.8, scroll=ft.ScrollMode.ALWAYS),
-                                border_radius=5,
-                                border=ft.Border(None, None, ft.BorderSide(1, ft.colors.GREY_400),
-                                                 ft.BorderSide(1, ft.colors.GREY_400)),
-                                bgcolor=ft.colors.WHITE,
-                                padding=ft.padding.all(10)
-                            ),
-                            ft.Row([
-                                ft.Card(
-                                    content=ft.Column([
-                                        ft.Row([
-                                            ft.Text("CDR1"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.BLUE)
-                                        ], alignment=ft.MainAxisAlignment.CENTER),
-                                        ft.Row([
-                                            ft.Text("CDR2"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.ORANGE)
-                                        ], alignment=ft.MainAxisAlignment.CENTER),
-                                        ft.Row([
-                                            ft.Text("CDR3"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.GREEN)
-                                        ], alignment=ft.MainAxisAlignment.CENTER),
-                                    ]), width=100
-                                )], alignment=ft.MainAxisAlignment.END),
-                        ], width=page.width, alignment=ft.alignment.top_center),
-                        ft.Card(
-                            content=graphMatPlot,
-                            width=page.width*0.8,
+                        ft.Row([idField, submitBtn], alignment=ft.MainAxisAlignment.CENTER),
+                        ft.Tabs(
+                            selected_index=0,
+                            animation_duration=300,
+                            clip_behavior=ft.ClipBehavior.NONE,
+                            scrollable=False,
+                            height=page.height*0.7,
+                            tabs=[
+                                ft.Tab(
+                                    text="Interactive Graph",
+                                    content=ft.Pagelet(
+                                        content=ft.Card(
+                                            content=ft.Stack([
+                                                        ft.Container(
+                                                            content=ft.Row([ft.InteractiveViewer(
+                                                                    content=graph,
+                                                                    scale_enabled=False,
+                                                                    pan_enabled=False,
+                                                                    width=graph.width*0.8,
+                                                                    height=page.height*0.6
+                                                                )], width=page.width*0.8, height=page.height*0.6, scroll=ft.ScrollMode.ALWAYS),
+                                                        ),
+                                                        ft.Row(
+                                                            [
+                                                               ft.Card(
+                                                                    content=ft.Column([
+                                                                        ft.Row([
+                                                                            ft.Text("CDR1"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.BLUE)
+                                                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                        ft.Row([
+                                                                            ft.Text("CDR2"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.ORANGE)
+                                                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                        ft.Row([
+                                                                            ft.Text("CDR3"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.GREEN)
+                                                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                    ]), width=100, height=115
+                                                                ) 
+                                                            ], alignment=ft.MainAxisAlignment.END
+                                                        ),
+                                                    ], width=page.width, alignment=ft.alignment.top_center),
+                                        ),
+                                    )
+                                ),
+                                ft.Tab(
+                                    text="Export Graph",
+                                    content=ft.Container(
+                                            content=ft.Card(
+                                                content=ft.Stack(
+                                                    [
+                                                        graphMatPlot,
+                                                        ft.Row(
+                                                            [
+                                                                ft.IconButton(icon=ft.icons.DOWNLOAD_ROUNDED, icon_color=ft.colors.GREEN_700, padding=20,
+                                                                               bgcolor=ft.colors.WHITE12, tooltip="Export Image",
+                                                                               on_click=lambda _: file_picker.save_file("Save Graph", f'graph_{idField.value}.png', 
+                                                                                                                       file_type=ft.FilePickerFileType.IMAGE, 
+                                                                                                                       allowed_extensions=['png', 'jpg', 'jpeg', 'gif']))
+                                                            ], alignment=ft.MainAxisAlignment.END, offset=ft.Offset(-0.01, 0.01)
+                                                        )
+                                                    ], alignment=ft.alignment.bottom_right
+                                                ),
+                                                width=page.width*0.8,
+                                        ),
+                                    ),
+                                )
+                            ],
+                            expand=1,
                         ),
                     ],
                     scroll=ft.ScrollMode.AUTO,
