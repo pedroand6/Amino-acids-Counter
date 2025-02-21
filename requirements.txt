@@ -1,0 +1,6 @@
+flet[all]==0.26.*
+matplotlib
+numpy
+pandas
+crowelab_pyir
+setuptools

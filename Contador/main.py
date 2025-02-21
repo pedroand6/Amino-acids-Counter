@@ -143,6 +143,12 @@ def main(page: ft.Page):
         graph.aminoacidos = list(aminoacidos)
         graph.cdr = [cdr1, cdr2, cdr3]
         graph.build()
+
+        minValue.data = min(contador)
+        maxValue.data = max(contador)
+
+        minValue.value = f"The minimum counting value is: {minValue.data}"
+        maxValue.value = f"The maximum counting value is: {maxValue.data}"
         
         page.go("/results")
         time.sleep(0.05)
@@ -151,11 +157,15 @@ def main(page: ft.Page):
         page.go("/results")
         page.update()
 
-    submitBtn = ft.ElevatedButton(text="Submit", on_click=lambda _: getResults(pd.read_csv(f'{arquivo.value}')), width=100)
+    submitBtn = ft.ElevatedButton(text="Submit", on_click=lambda _: getResults(pd.read_csv(f'{arquivo.value}')), width=100, 
+                                  elevation=10)
     idField = DropdownID(page)
     graphMatPlot = MatplotlibChart(plt.figure(), expand=True)
     graph = chart.ProteinChart(page)
-    
+
+    minValue = ft.Text("", data=0, size=20, text_align=ft.TextAlign.LEFT)
+    maxValue = ft.Text("", data=0, size=20, text_align=ft.TextAlign.LEFT)
+
     def changeBg(e):
         btn = e.control
         if btn.bgcolor != ft.colors.GREY_300:
@@ -182,7 +192,7 @@ def main(page: ft.Page):
                                         ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Icon(name=ft.icons.FILE_UPLOAD_ROUNDED, color=ft.colors.GREEN_400, size=page.width*0.1),
+                                                    ft.Icon(name=ft.icons.FILE_UPLOAD_ROUNDED, color=ft.colors.GREEN_400, size=150),
                                                     arqName
                                                 ],
                                                 alignment=ft.MainAxisAlignment.CENTER,
@@ -193,8 +203,8 @@ def main(page: ft.Page):
                                                 spread_radius=2,
                                                 blur_radius=15
                                             ),
-                                            width=page.width*0.2,
-                                            height=page.width*0.2,
+                                            width=300,
+                                            height=300,
                                             bgcolor=ft.colors.GREY_200,
                                             shape=ft.BoxShape.CIRCLE,
                                             on_hover=lambda e: changeBg(e),
@@ -208,7 +218,7 @@ def main(page: ft.Page):
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                     ),
-                    ft.CupertinoButton(text="Submit", bgcolor=ft.colors.GREEN_700, on_click=lambda e: ViewResults(e), alignment=ft.alignment.bottom_center)
+                    ft.CupertinoButton(text="Submit", bgcolor=ft.colors.GREEN_700, color=ft.colors.WHITE, on_click=lambda e: ViewResults(e), alignment=ft.alignment.bottom_center)
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 vertical_alignment=ft.MainAxisAlignment.CENTER
@@ -266,24 +276,31 @@ def main(page: ft.Page):
                                 ),
                                 ft.Tab(
                                     text="Export Graph",
-                                    content=ft.Container(
-                                            content=ft.Card(
+                                    content=ft.Column(
+                                        [
+                                            ft.Card(
                                                 content=ft.Stack(
                                                     [
                                                         graphMatPlot,
                                                         ft.Row(
                                                             [
                                                                 ft.IconButton(icon=ft.icons.DOWNLOAD_ROUNDED, icon_color=ft.colors.GREEN_700, padding=20,
-                                                                               bgcolor=ft.colors.WHITE12, tooltip="Export Image",
-                                                                               on_click=lambda _: file_picker.save_file("Save Graph", f'graph_{idField.value}.png', 
-                                                                                                                       file_type=ft.FilePickerFileType.IMAGE, 
-                                                                                                                       allowed_extensions=['png', 'jpg', 'jpeg', 'gif']))
+                                                                            bgcolor=ft.colors.WHITE12, tooltip="Export Image",
+                                                                            on_click=lambda _: file_picker.save_file("Save Graph", f'graph_{idField.value}.png', 
+                                                                                                                    file_type=ft.FilePickerFileType.IMAGE, 
+                                                                                                                    allowed_extensions=['png', 'jpg', 'jpeg', 'gif']))
                                                             ], alignment=ft.MainAxisAlignment.END, offset=ft.Offset(-0.01, 0.01)
                                                         )
                                                     ], alignment=ft.alignment.bottom_right
                                                 ),
                                                 width=page.width*0.8,
-                                        ),
+                                            ),
+                                            minValue,
+                                            maxValue
+                                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                        width=page.width,
+                                        scroll=ft.ScrollMode.ALWAYS,
+                                        expand=2,
                                     ),
                                 )
                             ],
