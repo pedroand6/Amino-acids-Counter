@@ -31,7 +31,6 @@ def main(page: ft.Page):
     arqName = ft.Text("Upload a CSV file", size=15, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS, width=page.width*0.12, text_align=ft.TextAlign.CENTER)
     
     def ViewResults(e):
-        page.go("/results")
         if arqName.value == "Upload a CSV file":
             return
         
@@ -41,6 +40,7 @@ def main(page: ft.Page):
         '''
         (int, dataframe) -> None
         '''
+
         page.go("/loading")
         
         id = idField.value
@@ -159,7 +159,9 @@ def main(page: ft.Page):
 
     submitBtn = ft.ElevatedButton(text="Submit", on_click=lambda _: getResults(pd.read_csv(f'{arquivo.value}')), width=100, 
                                   elevation=10)
+    
     idField = DropdownID(page)
+    
     graphMatPlot = MatplotlibChart(plt.figure(), expand=True)
     graph = chart.ProteinChart(page)
 
@@ -208,7 +210,7 @@ def main(page: ft.Page):
                                             bgcolor=ft.colors.GREY_200,
                                             shape=ft.BoxShape.CIRCLE,
                                             on_hover=lambda e: changeBg(e),
-                                            on_click=lambda _: file_picker.pick_files(allowed_extensions=["csv"], file_type=ft.FilePickerFileType.CUSTOM)
+                                            on_click=lambda _: file_picker.pick_files(allowed_extensions=["csv"])
                                         ),
                                     ],
                                     alignment=ft.MainAxisAlignment.CENTER,
@@ -225,7 +227,19 @@ def main(page: ft.Page):
             ),
         )
         if page.route == "/results":
-            idField.df = pd.read_csv(f'{arquivo.value}')
+            try:
+                idField.df = pd.read_csv(f'{arquivo.value}')
+                if not set(['Protein Accession','Start', 'End', 'Peptide']).issubset(idField.df.columns):
+                    fileWrong = ft.AlertDialog(False, title=ft.Text("Error"),
+                                                content=ft.Text("File is incompatible."))
+                    page.open(fileWrong)
+                    return
+            except:
+                fileWrong = ft.AlertDialog(modal=False, title=ft.Text("Error"),
+                                           content=ft.Text("File is incompatible."), disabled=False)
+                page.open(fileWrong)
+                return
+
             page.views.append(
                 ft.View(
                     "/results",

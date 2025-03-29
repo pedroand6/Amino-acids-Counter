@@ -21,7 +21,7 @@ class DropdownID(ft.Dropdown):
         
         self.options.clear()
         
-        proteinDic =  self.df['Protein Accession'].unique()
+        proteinDic = self.df['Protein Accession'].unique()
 
         for id in proteinDic:
             self.options.append(ft.dropdown.Option(f"{id}"))
