@@ -11,12 +11,25 @@ from dropdownID import DropdownID
 import re
 from crowelab_pyir import PyIR
 from reverseTranslator import aa2na
+import os
 
 def main(page: ft.Page):
+    os.environ["FLET_SECRET_KEY"] = os.urandom(12).hex()
+
     def on_dialog_result(e: ft.FilePickerResultEvent):
-        if e.files:
-            arqName.value = e.files[0].name
-            arquivo.value = e.files[0].path
+        if e.page.web:
+            # pre upload file
+            e.control.data = e.files[0].name
+            file = ft.FilePickerUploadFile(e.files[0].name, e.page.get_upload_url(e.files[0].name, 3600))
+            e.control.upload([file])
+
+            if e.files:
+                arqName.value = e.files[0].name
+                arquivo.value = e.files[0].name
+        else:
+            if e.files:
+                arqName.value = e.files[0].name
+                arquivo.value = e.files[0].path
 
         if e.path:
             graphMatPlot.figure.savefig(e.path)
@@ -235,6 +248,7 @@ def main(page: ft.Page):
                     page.open(fileWrong)
                     return
             except:
+                print(arquivo.value)
                 fileWrong = ft.AlertDialog(modal=False, title=ft.Text("Error"),
                                            content=ft.Text("File is incompatible."), disabled=False)
                 page.open(fileWrong)
