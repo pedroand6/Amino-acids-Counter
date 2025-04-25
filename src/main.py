@@ -14,6 +14,7 @@ from reverseTranslator import aa2na
 import os
 
 def main(page: ft.Page):
+    page.theme_mode = ft.ThemeMode.LIGHT
     os.environ["FLET_SECRET_KEY"] = os.urandom(12).hex()
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
@@ -372,4 +373,4 @@ def main(page: ft.Page):
     page.on_resized = updateView
     page.go(page.route)
 
-ft.app(main)
+ft.app(target=main, view=None, port=8501)
