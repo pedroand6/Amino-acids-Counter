@@ -12,7 +12,8 @@ dependencies = [
   "matplotlib",
   "numpy",
   "pandas",
-  "micropip"
+  "crowelab_pyir",
+  "setuptools"
 ]
 
 [tool.flet]
@@ -36,10 +37,6 @@ path = "src"
 [tool.uv]
 dev-dependencies = [
     "flet[all]==0.27.6",
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "micropip"
 ]
 
 [tool.poetry]
@@ -47,3 +44,11 @@ package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 flet = {extras = ["all"], version = "0.27.6"}
+
+[tool.poetry.dependencies]
+flet = "0.27.6"
+crowelab_pyir = "1.5.0"
+matplotlib = "3.10.1"
+pandas = "2.3.1"
+numpy = "2.3.1"
+setuptools = "80.9.0"

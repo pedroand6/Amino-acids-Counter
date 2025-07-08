@@ -1,0 +1,13 @@
+[Unit]
+Description=Flet App
+After=network.target
+
+[Service]
+User=administrator
+Group=lpadmin
+WorkingDirectory=/home/administrator/Documentos/Amino-acids-Counter
+Environment="PATH=/home/administrator/Documentos/Amino-acids-Counter/.venv/bin"
+ExecStart=/home/administrator/Documentos/Amino-acids-Counter/.venv/bin/python /home/administrator/Documentos/Amino-acids-Counter/src/main.py
+
+[Install]
+WantedBy=multi-user.target

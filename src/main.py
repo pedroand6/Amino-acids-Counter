@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 import chart
 from dropdownID import DropdownID
@@ -93,8 +94,13 @@ def main(page: ft.Page):
         ofile.close()
 
         #Connecting to IGBlast to get the CDRs
-        pyirfile = PyIR(query=fastaFile, args=['--outfmt', 'dict'])
-        result = pyirfile.run()
+        try:
+            pyirfile = PyIR(query=fastaFile, args=['--outfmt', 'dict'])
+            result = pyirfile.run()
+        except Exception as e:
+            result = {}
+            alerta = ft.AlertDialog(modal=False, title=ft.Text("Error to connect to IGBlast"), content=ft.Text(f"No CDR information can be displayed.\n{e}", selectable=True))
+            page.open(alerta)
 
         #Get results
         try:
@@ -145,7 +151,7 @@ def main(page: ft.Page):
             'CDR3': 'green'
         }
         labels = list(legend.keys())
-        handles = [plt.Rectangle((0,0),1,1, color=legend[label]) for label in labels]
+        handles = [mpatches.Rectangle((0,0),1,1, color=legend[label]) for label in labels]
         plt.legend(handles, labels, fontsize=12)
 
         plt.plot()
@@ -184,11 +190,11 @@ def main(page: ft.Page):
 
     def changeBg(e):
         btn = e.control
-        if btn.bgcolor != ft.colors.GREY_300:
-            btn.bgcolor = ft.colors.GREY_300
+        if btn.bgcolor != ft.Colors.GREY_300:
+            btn.bgcolor = ft.Colors.GREY_300
             btn.update()
         else:
-            btn.bgcolor = ft.colors.GREY_200
+            btn.bgcolor = ft.Colors.GREY_200
             btn.update()
 
     def route_change(route):
@@ -197,7 +203,7 @@ def main(page: ft.Page):
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Amino acids Counter by position"), bgcolor=ft.colors.GREEN_700, color=ft.colors.GREY_200, center_title=True),
+                    ft.AppBar(title=ft.Text("Amino acids Counter by position"), bgcolor=ft.Colors.GREEN_700, color=ft.Colors.GREY_200, center_title=True),
                     ft.Column(
                         [
                             ft.Container(
@@ -208,7 +214,7 @@ def main(page: ft.Page):
                                         ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Icon(name=ft.icons.FILE_UPLOAD_ROUNDED, color=ft.colors.GREEN_400, size=150),
+                                                    ft.Icon(name=ft.Icons.FILE_UPLOAD_ROUNDED, color=ft.Colors.GREEN_400, size=150),
                                                     arqName
                                                 ],
                                                 alignment=ft.MainAxisAlignment.CENTER,
@@ -221,7 +227,7 @@ def main(page: ft.Page):
                                             ),
                                             width=300,
                                             height=300,
-                                            bgcolor=ft.colors.GREY_200,
+                                            bgcolor=ft.Colors.GREY_200,
                                             shape=ft.BoxShape.CIRCLE,
                                             on_hover=lambda e: changeBg(e),
                                             on_click=lambda _: file_picker.pick_files(allowed_extensions=["csv"])
@@ -234,7 +240,7 @@ def main(page: ft.Page):
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                     ),
-                    ft.CupertinoButton(text="Submit", bgcolor=ft.colors.GREEN_700, color=ft.colors.WHITE, on_click=lambda e: ViewResults(e), alignment=ft.alignment.bottom_center)
+                    ft.CupertinoButton(text="Submit", bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE, on_click=lambda e: ViewResults(e), alignment=ft.alignment.bottom_center)
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 vertical_alignment=ft.MainAxisAlignment.CENTER
@@ -259,7 +265,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/results",
                     [
-                        ft.AppBar(title=ft.Text("Results"), bgcolor=ft.colors.GREEN_700, color=ft.colors.GREY_200, center_title=True),
+                        ft.AppBar(title=ft.Text("Results"), bgcolor=ft.Colors.GREEN_700, color=ft.Colors.GREY_200, center_title=True),
                         ft.Row([idField, submitBtn], alignment=ft.MainAxisAlignment.CENTER),
                         ft.Tabs(
                             selected_index=0,
@@ -287,13 +293,13 @@ def main(page: ft.Page):
                                                                ft.Card(
                                                                     content=ft.Column([
                                                                         ft.Row([
-                                                                            ft.Text("CDR1"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.BLUE)
+                                                                            ft.Text("CDR1"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.BLUE)
                                                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                                                         ft.Row([
-                                                                            ft.Text("CDR2"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.ORANGE)
+                                                                            ft.Text("CDR2"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.ORANGE)
                                                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                                                         ft.Row([
-                                                                            ft.Text("CDR3"), ft.Icon(ft.icons.SQUARE_ROUNDED, color=ft.colors.GREEN)
+                                                                            ft.Text("CDR3"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.GREEN)
                                                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                                                     ]), width=100, height=115
                                                                 ) 
@@ -313,8 +319,8 @@ def main(page: ft.Page):
                                                         graphMatPlot,
                                                         ft.Row(
                                                             [
-                                                                ft.IconButton(icon=ft.icons.DOWNLOAD_ROUNDED, icon_color=ft.colors.GREEN_700, padding=20,
-                                                                            bgcolor=ft.colors.WHITE12, tooltip="Export Image",
+                                                                ft.IconButton(icon=ft.Icons.DOWNLOAD_ROUNDED, icon_color=ft.Colors.GREEN_700, padding=20,
+                                                                            bgcolor=ft.Colors.WHITE12, tooltip="Export Image",
                                                                             on_click=lambda _: file_picker.save_file("Save Graph", f'graph_{idField.value}.png', 
                                                                                                                     file_type=ft.FilePickerFileType.IMAGE, 
                                                                                                                     allowed_extensions=['png', 'jpg', 'jpeg', 'gif']))

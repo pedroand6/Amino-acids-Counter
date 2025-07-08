@@ -1,6 +1,7 @@
-flet[all]==0.27.*
+flet[all]==0.27.6
 matplotlib
 numpy
 pandas
 crowelab_pyir
-micropip
+setuptools
+pyinstaller
