@@ -391,5 +391,6 @@ ft.app(
     view=None,
     port=8000,
     host="0.0.0.0",
+    name ='tool',
     route_url_strategy="path"
 )
