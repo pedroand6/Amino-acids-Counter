@@ -1,4 +1,3 @@
-from pydoc import text
 import flet as ft
 import pandas as pd
 

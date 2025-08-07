@@ -1,4 +1,3 @@
-from pydoc import text
 import flet as ft
 import pandas as pd
 
@@ -16,7 +15,7 @@ class ProteinChart(ft.BarChart):
         self.scale = 0.95
         
         self.expand_loose = True
-        self.animate = ft.animation.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
+        self.animate = ft.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
         self.horizontal_grid_lines=ft.ChartGridLines(
             color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
         )
@@ -39,11 +38,11 @@ class ProteinChart(ft.BarChart):
                     bar_rods=[
                         ft.BarChartRod(
                             from_y=0,
-                            to_y=self.contador[i],
+                            to_y=int(self.contador[i]),
                             width=20,
-                            color=ft.Colors.RED,
+                            color=ft.Colors.ORANGE,
                             border_radius=1,
-                            tooltip=self.contador[i]
+                            tooltip=f"{int(self.contador[i])}"
                         )],
                 )
             )
@@ -52,7 +51,7 @@ class ProteinChart(ft.BarChart):
             i.bar_rods[0].color = ft.Colors.BLUE
 
         for i in barChartGroups[((self.cdr[1][0]-1)//3):(self.cdr[1][1]//3)]:
-            i.bar_rods[0].color = ft.Colors.ORANGE
+            i.bar_rods[0].color = ft.Colors.RED
 
         for i in barChartGroups[((self.cdr[2][0]-1)//3):(self.cdr[2][1]//3)]:
             i.bar_rods[0].color = ft.Colors.GREEN

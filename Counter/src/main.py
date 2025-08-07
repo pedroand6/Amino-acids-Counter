@@ -99,8 +99,13 @@ def main(page: ft.Page):
             result = pyirfile.run()
         except Exception as e:
             result = {}
-            alerta = ft.AlertDialog(modal=False, title=ft.Text("Error to connect to IGBlast"), content=ft.Text(f"No CDR information can be displayed.\n{e}", selectable=True))
+            dismissed = False
+
+            def dismissError(e): e = True
+
+            alerta = ft.AlertDialog(modal=False, on_dismiss=lambda _: dismissError(dismissed), title=ft.Text("Error to connect to IGBlast"), content=ft.Text(f"No CDR information can be displayed.\n{e}", selectable=True))
             page.open(alerta)
+            while not dismissed: continue
 
         #Get results
         try:
@@ -122,9 +127,9 @@ def main(page: ft.Page):
         
         plt.style.use("seaborn-v0_8-darkgrid")
 
-        colors = np.full(len(linhas), 'maroon')
+        colors = np.full(len(linhas), 'orange')
         colors[((cdr1[0]-1)//3):(cdr1[1]//3)] = 'blue'
-        colors[((cdr2[0]-1)//3):(cdr2[1]//3)] = 'orange'
+        colors[((cdr2[0]-1)//3):(cdr2[1]//3)] = 'maroon'
         colors[((cdr3[0]-1)//3):(cdr3[1]//3)] = 'green'
         
         bars = plt.bar(linhas, contador, color=colors, linewidth=0.7)
@@ -145,9 +150,9 @@ def main(page: ft.Page):
         plt.tight_layout()
         
         legend = {
-            'Outside CDR': 'maroon',
+            'Constant Region': 'orange',
             'CDR1': 'blue',
-            'CDR2': 'orange',
+            'CDR2': 'maroon',
             'CDR3': 'green'
         }
         labels = list(legend.keys())
@@ -296,7 +301,7 @@ def main(page: ft.Page):
                                                                             ft.Text("CDR1"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.BLUE)
                                                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                                                         ft.Row([
-                                                                            ft.Text("CDR2"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.ORANGE)
+                                                                            ft.Text("CDR2"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.RED)
                                                                         ], alignment=ft.MainAxisAlignment.CENTER),
                                                                         ft.Row([
                                                                             ft.Text("CDR3"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.GREEN)
@@ -379,4 +384,12 @@ def main(page: ft.Page):
     page.on_resized = updateView
     page.go(page.route)
 
-ft.app(target=main, view=None, port=8501)
+
+ft.app(
+    target=main,
+    assets_dir="assets",
+    view=None,
+    port=8000,
+    host="0.0.0.0",
+    route_url_strategy="path"
+)
