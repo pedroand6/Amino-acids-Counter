@@ -1,7 +1,7 @@
 # Amino Acids Counter
 
 ## Overview
-This project processes CSV files exported from a protein analyzer application. The input CSV file should contain the following columns:
+This project processes CSV files exported from the PEAKS software. The input CSV file should contain the following columns:
 
 - **Protein Accession**
 - **Start**
@@ -24,8 +24,9 @@ From this data, the application counts the amino acids by position in the sequen
 *Example of the downloadable histogram generated.*
 
 ## Usage
-1. Provide a CSV file in the correct format.
-2. View the generated histogram and analyze the CDR coverage.
+1. Access https://proteomics.bioinfo.unifesp.br/tool/
+2. Provide a CSV file in the correct format.
+3. View the generated histogram and analyze the CDR coverage.
 
 ## Requirements
 - Python 3.x
@@ -33,7 +34,7 @@ From this data, the application counts the amino acids by position in the sequen
 - Matplotlib
 - Numpy
 - Pandas
-- crowelab_pyir
+- crowelab_pyir (and every requisite that this wrapper needs)
 
 ## Contributing
 Feel free to submit pull requests or report issues.
