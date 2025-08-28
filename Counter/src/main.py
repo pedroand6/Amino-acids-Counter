@@ -13,32 +13,42 @@ import re
 from crowelab_pyir import PyIR
 from reverseTranslator import aa2na
 import os
+import tempfile
+
+temp_files = []
 
 def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     os.environ["FLET_SECRET_KEY"] = os.urandom(12).hex()
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
-        if e.page.web:
-            # pre upload file
-            e.control.data = e.files[0].name
-            file = ft.FilePickerUploadFile(e.files[0].name, e.page.get_upload_url(e.files[0].name, 3600))
-            e.control.upload([file])
+        if e.page.web and e.files:
+            # Obtém a URL para upload do arquivo para o backend
+            file_name = e.files[0].name
+            upload_url = page.get_upload_url(file_name, 3600)
+            
+            # Faz o upload do arquivo
+            upload_file = ft.FilePickerUploadFile(file_name, upload_url)
+            print(upload_file.upload_url)
+            file_picker.upload([upload_file])
+        elif e.files:
+            arqName.value = e.files[0].name
+            arquivo.value = e.files[0].path
 
-            if e.files:
-                arqName.value = e.files[0].name
-                arquivo.value = e.files[0].name
-        else:
-            if e.files:
-                arqName.value = e.files[0].name
-                arquivo.value = e.files[0].path
+    def on_upload_complete(e: ft.FilePickerUploadEvent):
+        if file_picker.result != None and file_picker.result.files != None:
+            uploaded_file = file_picker.result.files[0]
+            arqName.value = uploaded_file.name
+            arquivo.value = f"{os.getcwd()+os.sep}Counter{os.sep}src{os.sep}uploads{os.sep+uploaded_file.name}"
+            page.update()
 
-        if e.path:
-            graphMatPlot.figure.savefig(e.path)
-
-        page.update()
-
-    file_picker = ft.FilePicker(on_result=on_dialog_result)
+    def exportGraph(e):
+        with tempfile.NamedTemporaryFile(delete=False, dir=os.path.join("Counter", "src", "assets"), suffix=".png") as tmp:
+            graphMatPlot.figure.savefig(tmp.name)
+            page.launch_url(f"{os.path.basename(tmp.name)}")
+            temp_files.append(tmp.name)
+    
+    file_picker = ft.FilePicker(on_result=on_dialog_result, on_upload=on_upload_complete)
     page.overlay.append(file_picker)
     page.update()
     
@@ -258,12 +268,14 @@ def main(page: ft.Page):
                     fileWrong = ft.AlertDialog(False, title=ft.Text("Error"),
                                                 content=ft.Text("File is incompatible."))
                     page.open(fileWrong)
+                    page.go("/")
                     return
             except:
                 print(arquivo.value)
                 fileWrong = ft.AlertDialog(modal=False, title=ft.Text("Error"),
-                                           content=ft.Text("File is incompatible."), disabled=False)
+                                           content=ft.Text("Error loading the file."), disabled=False)
                 page.open(fileWrong)
+                page.go("/")
                 return
 
             page.views.append(
@@ -326,9 +338,7 @@ def main(page: ft.Page):
                                                             [
                                                                 ft.IconButton(icon=ft.Icons.DOWNLOAD_ROUNDED, icon_color=ft.Colors.GREEN_700, padding=20,
                                                                             bgcolor=ft.Colors.WHITE12, tooltip="Export Image",
-                                                                            on_click=lambda _: file_picker.save_file("Save Graph", f'graph_{idField.value}.png', 
-                                                                                                                    file_type=ft.FilePickerFileType.IMAGE, 
-                                                                                                                    allowed_extensions=['png', 'jpg', 'jpeg', 'gif']))
+                                                                            on_click=lambda e: exportGraph(e))
                                                             ], alignment=ft.MainAxisAlignment.END, offset=ft.Offset(-0.01, 0.01)
                                                         )
                                                     ], alignment=ft.alignment.bottom_right
@@ -379,6 +389,12 @@ def main(page: ft.Page):
         page.go(route)
         page.update()
 
+    def deleteTemp(e):
+        for i in temp_files:
+            os.remove(i)
+        
+    page.on_close = deleteTemp
+    page.on_disconnect = deleteTemp
     page.on_route_change = route_change
     page.on_view_pop = view_pop
     page.on_resized = updateView
@@ -388,6 +404,7 @@ def main(page: ft.Page):
 ft.app(
     target=main,
     assets_dir="assets",
+    upload_dir="uploads",
     view=None,
     port=8000,
     host="0.0.0.0",
