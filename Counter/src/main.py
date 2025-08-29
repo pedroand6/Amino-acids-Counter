@@ -21,11 +21,18 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     os.environ["FLET_SECRET_KEY"] = os.urandom(12).hex()
 
+    file_mapping = {}
+
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.page.web and e.files:
+            file_mapping.clear()
             # Obtém a URL para upload do arquivo para o backend
             file_name = e.files[0].name
-            upload_url = page.get_upload_url(file_name, 3600)
+            file_mapping[file_name] = os.path.basename(tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name)
+
+            upload_url = page.get_upload_url(
+                file_mapping[file_name], 
+                3600)
             
             # Faz o upload do arquivo
             upload_file = ft.FilePickerUploadFile(file_name, upload_url)
@@ -37,9 +44,9 @@ def main(page: ft.Page):
 
     def on_upload_complete(e: ft.FilePickerUploadEvent):
         if file_picker.result != None and file_picker.result.files != None:
-            uploaded_file = file_picker.result.files[0]
-            arqName.value = uploaded_file.name
-            arquivo.value = f"{os.getcwd()+os.sep}Counter{os.sep}src{os.sep}uploads{os.sep+uploaded_file.name}"
+            custom_name = file_mapping.get(e.file_name)
+            arqName.value = custom_name
+            arquivo.value = f"{os.getcwd()+os.sep}Counter{os.sep}src{os.sep}uploads{os.sep+str(custom_name)}"
             page.update()
 
     def exportGraph(e):
@@ -270,10 +277,10 @@ def main(page: ft.Page):
                     page.open(fileWrong)
                     page.go("/")
                     return
-            except:
+            except  Exception as e:
                 print(arquivo.value)
                 fileWrong = ft.AlertDialog(modal=False, title=ft.Text("Error"),
-                                           content=ft.Text("Error loading the file."), disabled=False)
+                                           content=ft.Text(f"Error loading the file.\n{e}"), disabled=False)
                 page.open(fileWrong)
                 page.go("/")
                 return
@@ -392,6 +399,10 @@ def main(page: ft.Page):
     def deleteTemp(e):
         for i in temp_files:
             os.remove(i)
+
+        for file in os.listdir(os.path.join("Counter", "src", "uploads")):
+            if not os.path.isdir(file) and ".csv" in file:
+                os.remove(os.path.join("Counter", "src", "uploads", file))
         
     page.on_close = deleteTemp
     page.on_disconnect = deleteTemp
