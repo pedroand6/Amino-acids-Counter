@@ -55,13 +55,13 @@ From this data, the application counts the amino acids by position in the sequen
 3. Use this command to create a tag for the repository:
 
     ```bash
-    sudo docker tag amino_acids_counter:latest pedroand6/amino-acids-tool:vn
+    sudo docker tag amino_acids_counter:latest <your-username>/amino-acids-tool:vn
     ```
 
 4. Finally, push your local image to the Docker Hub repository:
 
     ```bash
-    sudo docker push pedroand6/amino-acids-tool:vn
+    sudo docker push <your-username>/amino-acids-tool:vn
     ```
 
 ## Server Side
@@ -82,8 +82,8 @@ From this data, the application counts the amino acids by position in the sequen
 3. Pull the image from the repository and run:
 
     ```bash
-    sudo docker pull pedroand6/amino-acids-tool:vn
-    sudo docker run -d -p 8080:8000 pedroand6/amino-acids-tool:vn
+    sudo docker pull <your-username>/amino-acids-tool:vn
+    sudo docker run -d -p 8080:8000 <your-username>/amino-acids-tool:vn
     ```
 
 
