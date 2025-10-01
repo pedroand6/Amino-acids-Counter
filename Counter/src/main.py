@@ -50,8 +50,8 @@ def main(page: ft.Page):
             page.update()
 
     def exportGraph(e):
-        with tempfile.NamedTemporaryFile(delete=False, dir=os.path.join("Counter", "src", "assets"), suffix=".png") as tmp:
-            graphMatPlot.figure.savefig(tmp.name)
+        with tempfile.NamedTemporaryFile(delete=False, dir=os.path.join("Counter", "src", "assets"), suffix=".pdf") as tmp:
+            graphMatPlot.figure.savefig(tmp.name, dpi=500)
             page.launch_url(f"{os.path.basename(tmp.name)}")
             temp_files.append(tmp.name)
     
