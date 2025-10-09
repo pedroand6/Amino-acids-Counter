@@ -1,3 +1,4 @@
+from math import exp
 import time
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
@@ -18,7 +19,14 @@ import tempfile
 temp_files = []
 
 def main(page: ft.Page):
+    page.fonts = {
+        "Segoe UI": "/fonts/SegoeUI.ttf",
+        "Cinzel": "/fonts/Cinzel-Regular.ttf",
+        "Cinzel-Bold": "/fonts/Cinzel-Bold.ttf",
+    }
+
     page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme = ft.Theme(font_family="Segoe UI", color_scheme_seed=ft.colors.GREEN)
     os.environ["FLET_SECRET_KEY"] = os.urandom(12).hex()
 
     file_mapping = {}
@@ -60,7 +68,7 @@ def main(page: ft.Page):
     page.update()
     
     arquivo = ft.Text("")
-    arqName = ft.Text("Upload a CSV file", size=15, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS, width=page.width*0.12, text_align=ft.TextAlign.CENTER)
+    arqName = ft.Text("Upload a CSV file", width=page.width*0.1, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS, text_align=ft.TextAlign.CENTER)
     
     def ViewResults(e):
         if arqName.value == "Upload a CSV file":
@@ -153,7 +161,7 @@ def main(page: ft.Page):
         
         plt.title(f'Amino acids Count for protein {id}', fontsize=18, weight='bold', color="darkblue", pad=20)
         plt.xlabel("Position", fontsize=14, labelpad=10)
-        plt.ylabel("Counting", fontsize=14, labelpad=10)
+        plt.ylabel("Spectra Count", fontsize=14, labelpad=10)
         
         ax = plt.gca()
 
@@ -189,8 +197,8 @@ def main(page: ft.Page):
         minValue.data = min(contador)
         maxValue.data = max(contador)
 
-        minValue.value = f"The minimum counting value is: {minValue.data}"
-        maxValue.value = f"The maximum counting value is: {maxValue.data}"
+        minValue.value = f"Min count: {minValue.data} \nPosition: {list(linhas)[list(contador).index(minValue.data)]}"
+        maxValue.value = f"Max count: {maxValue.data} \nPosition: {list(linhas)[list(contador).index(maxValue.data)]}"
         
         page.go("/results")
         time.sleep(0.05)
@@ -207,8 +215,8 @@ def main(page: ft.Page):
     graphMatPlot = MatplotlibChart(plt.figure(), expand=True)
     graph = chart.ProteinChart(page)
 
-    minValue = ft.Text("", data=0, size=20, text_align=ft.TextAlign.LEFT)
-    maxValue = ft.Text("", data=0, size=20, text_align=ft.TextAlign.LEFT)
+    minValue = ft.Text("Min count: \nPosition:", data=0, text_align=ft.TextAlign.LEFT)
+    maxValue = ft.Text("Max count: \nPosition:", data=0, text_align=ft.TextAlign.LEFT)
 
     def changeBg(e):
         btn = e.control
@@ -219,13 +227,53 @@ def main(page: ft.Page):
             btn.bgcolor = ft.Colors.GREY_200
             btn.update()
 
+    unifesp_header = ft.AppBar(
+        bgcolor="#215a36",
+        title=ft.Button(
+            content = ft.Row(
+                [
+                    ft.Image(
+                        src="/UnifespLogo.png",
+                        height=105,
+                        filter_quality=ft.FilterQuality.HIGH,
+                    ),
+                    ft.Text(
+                        "Universidade Federal de São Paulo",
+                        font_family="Cinzel",
+                        size=35,
+                        color=ft.Colors.WHITE,
+                        style=ft.TextThemeStyle.TITLE_LARGE,
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                ],
+                expand=1,
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            url="https://proteomics.bioinfo.unifesp.br/",
+            bgcolor=ft.Colors.TRANSPARENT,
+            color=ft.Colors.TRANSPARENT,
+            style=ft.ButtonStyle(
+                bgcolor=ft.colors.TRANSPARENT,
+                overlay_color=ft.colors.TRANSPARENT,
+                shape=None,
+                padding=0,
+                elevation=0,
+                side=None,
+            ),
+
+        ),
+        center_title=True,
+        toolbar_height=120,
+    )
+
     def route_change(route):
         page.views.clear()
         page.views.append(
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Amino acids Counter by position"), bgcolor=ft.Colors.GREEN_700, color=ft.Colors.GREY_200, center_title=True),
+                    unifesp_header,
                     ft.Column(
                         [
                             ft.Container(
@@ -236,7 +284,7 @@ def main(page: ft.Page):
                                         ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Icon(name=ft.Icons.FILE_UPLOAD_ROUNDED, color=ft.Colors.GREEN_400, size=150),
+                                                    ft.Icon(name=ft.Icons.FILE_UPLOAD_ROUNDED, color=ft.Colors.GREEN_400, size=page.width*page.height*0.00008),
                                                     arqName
                                                 ],
                                                 alignment=ft.MainAxisAlignment.CENTER,
@@ -247,8 +295,8 @@ def main(page: ft.Page):
                                                 spread_radius=2,
                                                 blur_radius=15
                                             ),
-                                            width=300,
-                                            height=300,
+                                            width=page.width*0.25,
+                                            height=page.height*0.4,
                                             bgcolor=ft.Colors.GREY_200,
                                             shape=ft.BoxShape.CIRCLE,
                                             on_hover=lambda e: changeBg(e),
@@ -329,6 +377,21 @@ def main(page: ft.Page):
                                                                 ) 
                                                             ], alignment=ft.MainAxisAlignment.END
                                                         ),
+                                                        ft.Row(
+                                                            [
+                                                               ft.Card(
+                                                                    content=ft.Column([
+                                                                        ft.Row([
+                                                                            maxValue
+                                                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                        ft.Divider(height=4, color=ft.Colors.BLACK),
+                                                                        ft.Row([
+                                                                            minValue
+                                                                        ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                    ]), width=150, height=115
+                                                                ) 
+                                                            ], alignment=ft.MainAxisAlignment.START
+                                                        ),
                                                     ], width=page.width, alignment=ft.alignment.top_center),
                                         ),
                                     )
@@ -352,12 +415,8 @@ def main(page: ft.Page):
                                                 ),
                                                 width=page.width*0.8,
                                             ),
-                                            minValue,
-                                            maxValue
                                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                        width=page.width,
-                                        scroll=ft.ScrollMode.ALWAYS,
-                                        expand=2,
+                                        expand=1,
                                     ),
                                 )
                             ],

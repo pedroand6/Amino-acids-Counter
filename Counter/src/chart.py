@@ -24,7 +24,7 @@ class ProteinChart(ft.BarChart):
         self.expand=True
         self.border=ft.border.all(1, ft.Colors.GREY_400)
         self.left_axis=ft.ChartAxis(
-            labels_size=40, title=ft.Text("Amino acids Count"), title_size=40
+            labels_size=40, title=ft.Text("Spectra Count"), title_size=40
         )
 
         self.makeGraph()
