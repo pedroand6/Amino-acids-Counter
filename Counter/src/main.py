@@ -1,5 +1,3 @@
-from cgitb import text
-from math import exp
 import time
 import flet as ft
 from flet.matplotlib_chart import MatplotlibChart
@@ -228,6 +226,21 @@ def main(page: ft.Page):
             btn.bgcolor = ft.Colors.GREY_200
             btn.update()
 
+    unifespTitle = ft.Text(
+                        "Universidade Federal de São Paulo",
+                        font_family="Cinzel",
+                        size=35,
+                        color=ft.Colors.WHITE,
+                        style=ft.TextThemeStyle.TITLE_LARGE,
+                        text_align=ft.TextAlign.CENTER,
+                        
+                    )
+    
+    if (float(page.width) if page.width else 0) < 768:
+            unifespTitle.visible = False
+    else:
+        unifespTitle.visible = True
+
     unifesp_header = ft.AppBar(
         bgcolor="#215a36",
         title=ft.Button(
@@ -238,14 +251,7 @@ def main(page: ft.Page):
                         height=105,
                         filter_quality=ft.FilterQuality.HIGH,
                     ),
-                    ft.Text(
-                        "Universidade Federal de São Paulo",
-                        font_family="Cinzel",
-                        size=35,
-                        color=ft.Colors.WHITE,
-                        style=ft.TextThemeStyle.TITLE_LARGE,
-                        text_align=ft.TextAlign.CENTER,
-                    ),
+                    unifespTitle
                 ],
                 expand=1,
                 alignment=ft.MainAxisAlignment.CENTER,
@@ -289,16 +295,10 @@ def main(page: ft.Page):
                             alignment=ft.alignment.bottom_center,
                             bgcolor="#215a36",
                             width=page.width,
-                            #height=175,
-                            expand=True
+                            height=175,
                         )
     
-    homepage = ft.Container(
-                expand=True,
-                content=ft.Column(
-                    [
-                        ft.Container(height=50,),
-                        ft.ResponsiveRow(
+    responseRow = ft.ResponsiveRow(
                             [
                                 ft.Column(
                                     [
@@ -319,14 +319,14 @@ def main(page: ft.Page):
                                     ],
                                     alignment=ft.MainAxisAlignment.START,
                                     horizontal_alignment=ft.CrossAxisAlignment.START,
-                                    width=page.width*0.25,
-                                    height=page.height*0.5,
+                                    width=500,
+                                    height=500,
                                     col={"md": 4},
                                 ),
                                 ft.Container(width=50, height=30, col={"md": 1},),
                                 ft.Container(
-                                    width=page.width*0.25,
-                                    height=page.height*0.5,
+                                    width=500,
+                                    height=500,
                                     col={"md": 4},
                                     content=ft.Column(
                                         [
@@ -364,15 +364,19 @@ def main(page: ft.Page):
                             vertical_alignment=ft.CrossAxisAlignment.CENTER,
                             run_spacing=30,
                             spacing=30,
-                            expand=False,
-                        ),
-                        ft.Container(expand=True),
+                            expand=True,
+                        )
+
+    homepage = ft.Container(
+                expand=True,
+                content=ft.Column(
+                    [
+                        responseRow,
                     ],
                     alignment=ft.MainAxisAlignment.START,  # Start alignment pushes content up
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    
                 ),
-
+                height = (1000 + 2 * 30 + 30)
             )
 
     def route_change(route):
@@ -382,8 +386,18 @@ def main(page: ft.Page):
                 "/",
                 appbar=unifesp_header,
                 controls=[
-                        homepage,
-                        footer
+                        ft.Container(
+                            content=ft.Column(
+                                [
+                                    homepage,
+                                    footer,
+                                ],
+                            ),
+                            height = (float(page.height) if page.height else 0) - (float(unifesp_header.toolbar_height) if unifesp_header.toolbar_height else 0)
+                                    if ((float(homepage.height) if homepage.height else 0) + (float(footer.height) if footer.height else 0)) < (float(page.height) if page.height else 0)
+                                    else None,
+                            expand=True
+                        )
                     ],
                 scroll=ft.ScrollMode.AUTO,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -412,106 +426,99 @@ def main(page: ft.Page):
                     "/results",
                     appbar=unifesp_header,
                     controls=[
-                        ft.Column(
-                            [
-                                ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Row([idField, submitBtn], alignment=ft.MainAxisAlignment.CENTER),
-                                            ft.Tabs(
-                                                selected_index=0,
-                                                animation_duration=300,
-                                                clip_behavior=ft.ClipBehavior.NONE,
-                                                scrollable=False,
-                                                height=page.height*0.7,
-                                                tabs=[
-                                                    ft.Tab(
-                                                        text="Interactive Graph",
-                                                        content=ft.Pagelet(
-                                                            content=ft.Card(
-                                                                content=ft.Stack([
-                                                                            ft.Container(
-                                                                                content=ft.Row([ft.InteractiveViewer(
-                                                                                        content=graph,
-                                                                                        scale_enabled=False,
-                                                                                        pan_enabled=False,
-                                                                                        width=graph.width*0.8,
-                                                                                        height=page.height*0.6
-                                                                                    )], width=page.width*0.8, height=page.height*0.6, scroll=ft.ScrollMode.ALWAYS),
-                                                                            ),
-                                                                            ft.Row(
-                                                                                [
-                                                                                    ft.Card(
-                                                                                        content=ft.Column([
-                                                                                            ft.Row([
-                                                                                                ft.Text("CDR1"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.BLUE)
-                                                                                            ], alignment=ft.MainAxisAlignment.CENTER),
-                                                                                            ft.Row([
-                                                                                                ft.Text("CDR2"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.RED)
-                                                                                            ], alignment=ft.MainAxisAlignment.CENTER),
-                                                                                            ft.Row([
-                                                                                                ft.Text("CDR3"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.GREEN)
-                                                                                            ], alignment=ft.MainAxisAlignment.CENTER),
-                                                                                        ]), width=100, height=115
-                                                                                    ) 
-                                                                                ], alignment=ft.MainAxisAlignment.END
-                                                                            ),
-                                                                            ft.Row(
-                                                                                [
-                                                                                    ft.Card(
-                                                                                        content=ft.Column([
-                                                                                            ft.Row([
-                                                                                                maxValue
-                                                                                            ], alignment=ft.MainAxisAlignment.CENTER),
-                                                                                            ft.Divider(height=4, color=ft.Colors.BLACK),
-                                                                                            ft.Row([
-                                                                                                minValue
-                                                                                            ], alignment=ft.MainAxisAlignment.CENTER),
-                                                                                        ]), width=150, height=115
-                                                                                    ) 
-                                                                                ], alignment=ft.MainAxisAlignment.START
-                                                                            ),
-                                                                        ], width=page.width, alignment=ft.alignment.top_center),
-                                                            ),
-                                                        )
-                                                    ),
-                                                    ft.Tab(
-                                                        text="Export Graph",
-                                                        content=ft.Column(
-                                                            [
-                                                                ft.Card(
-                                                                    content=ft.Stack(
-                                                                        [
-                                                                            graphMatPlot,
-                                                                            ft.Row(
-                                                                                [
-                                                                                    ft.IconButton(icon=ft.Icons.DOWNLOAD_ROUNDED, icon_color=ft.Colors.GREEN_700, padding=20,
-                                                                                                bgcolor=ft.Colors.WHITE12, tooltip="Export Image",
-                                                                                                on_click=lambda e: exportGraph(e))
-                                                                                ], alignment=ft.MainAxisAlignment.END, offset=ft.Offset(-0.01, 0.01)
-                                                                            )
-                                                                        ], alignment=ft.alignment.top_right
+                        ft.Container(
+                            content=ft.Column(
+                                controls = [
+                                    ft.Row([idField, submitBtn], alignment=ft.MainAxisAlignment.CENTER, height=100),
+                                    ft.Tabs(
+                                        selected_index=0,
+                                        animation_duration=300,
+                                        clip_behavior=ft.ClipBehavior.NONE,
+                                        scrollable=False,
+                                        height=page.height*0.7,
+                                        tabs=[
+                                            ft.Tab(
+                                                text="Interactive Graph",
+                                                content=ft.Pagelet(
+                                                    content=ft.Card(
+                                                        content=ft.Stack([
+                                                                    ft.Container(
+                                                                        content=ft.Row([ft.InteractiveViewer(
+                                                                                content=graph,
+                                                                                scale_enabled=False,
+                                                                                pan_enabled=False,
+                                                                                width=graph.width*0.8,
+                                                                                height=page.height*0.6
+                                                                            )], width=page.width*0.8, height=page.height*0.6, scroll=ft.ScrollMode.ALWAYS),
                                                                     ),
-                                                                    width=page.width*0.8,
-                                                                    height=page.height*0.6,
-                                                                ),
-                                                            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                                            expand=True,
+                                                                    ft.Row(
+                                                                        [
+                                                                            ft.Card(
+                                                                                content=ft.Column([
+                                                                                    ft.Row([
+                                                                                        ft.Text("CDR1"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.BLUE)
+                                                                                    ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                                    ft.Row([
+                                                                                        ft.Text("CDR2"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.RED)
+                                                                                    ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                                    ft.Row([
+                                                                                        ft.Text("CDR3"), ft.Icon(ft.Icons.SQUARE_ROUNDED, color=ft.Colors.GREEN)
+                                                                                    ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                                ]), width=100, height=115
+                                                                            ) 
+                                                                        ], alignment=ft.MainAxisAlignment.END
+                                                                    ),
+                                                                    ft.Row(
+                                                                        [
+                                                                            ft.Card(
+                                                                                content=ft.Column([
+                                                                                    ft.Row([
+                                                                                        maxValue
+                                                                                    ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                                    ft.Divider(height=4, color=ft.Colors.BLACK),
+                                                                                    ft.Row([
+                                                                                        minValue
+                                                                                    ], alignment=ft.MainAxisAlignment.CENTER),
+                                                                                ]), width=150, height=115
+                                                                            ) 
+                                                                        ], alignment=ft.MainAxisAlignment.START
+                                                                    ),
+                                                                ], width=page.width, alignment=ft.alignment.top_center),
+                                                    ),
+                                                )
+                                            ),
+                                            ft.Tab(
+                                                text="Export Graph",
+                                                content=ft.Column(
+                                                    [
+                                                        ft.Card(
+                                                            content=ft.Stack(
+                                                                [
+                                                                    graphMatPlot,
+                                                                    ft.Row(
+                                                                        [
+                                                                            ft.IconButton(icon=ft.Icons.DOWNLOAD_ROUNDED, icon_color=ft.Colors.GREEN_700, padding=20,
+                                                                                        bgcolor=ft.Colors.WHITE12, tooltip="Export Image",
+                                                                                        on_click=lambda e: exportGraph(e))
+                                                                        ], alignment=ft.MainAxisAlignment.END, offset=ft.Offset(-0.01, 0.01)
+                                                                    )
+                                                                ], alignment=ft.alignment.top_right
+                                                            ),
+                                                            width=page.width*0.8,
+                                                            height=page.height*0.6,
                                                         ),
-                                                    )
-                                                ],
+                                                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    expand=True,
+                                                ),
                                             )
                                         ],
-                                        expand=True,
                                     ),
-                                    expand=True,
-                                ),
-                                footer,
-                            ],
-                            expand=True,
-                            alignment=ft.MainAxisAlignment.END,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                        )
+                                    footer,
+                                ],
+                                expand=True,
+                            ),
+                            height = None
+                        ),
                     ],
                     scroll=ft.ScrollMode.AUTO,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -540,23 +547,17 @@ def main(page: ft.Page):
                     "/submit",
                     appbar=unifesp_header,
                     controls=[
-                        ft.Column(
-                            [
-                                ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Row([idField, submitBtn], alignment=ft.MainAxisAlignment.CENTER),
-                                        ],
-                                        expand=True,
-                                    ),
+                            ft.Container(
+                                content=ft.Column(
+                                    [
+                                        ft.Row([idField, submitBtn], alignment=ft.MainAxisAlignment.CENTER, height=100),
+                                        ft.Container(expand=True),
+                                        footer,
+                                    ],
                                     expand=True,
                                 ),
-                                footer,
-                            ],
-                            expand=True,
-                            alignment=ft.MainAxisAlignment.END,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                        )
+                                height = (float(page.height) if page.height else 0) - (float(unifesp_header.toolbar_height) if unifesp_header.toolbar_height else 0)
+                            ),
                     ],
                     scroll=ft.ScrollMode.AUTO,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -585,6 +586,11 @@ def main(page: ft.Page):
         page.go(top_view.route)
         
     def updateView(view):
+        if (float(page.width) if page.width else 0) < 768:
+            unifespTitle.visible = False
+        else:
+            unifespTitle.visible = True
+
         route = page.route
         page.go(route)
         page.update()
