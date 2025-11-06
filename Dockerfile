@@ -1,4 +1,4 @@
-FROM python:3-slim
+FROM python:3.12-slim
 
 ENV IGDATA="/opt/igblast/internal_data"
 ENV PATH="/opt/igblast/bin:$PATH"
@@ -35,4 +35,6 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "Counter/src/main.py"]
+ENV FLET_NO_RELOAD=1
+ENV FLET_SKIP_DAEMON=1
+CMD pkill -f "fletd" || true && python Counter/src/main.py

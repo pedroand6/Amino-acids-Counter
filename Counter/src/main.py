@@ -592,6 +592,8 @@ def main(page: ft.Page):
             unifespTitle.visible = True
 
         route = page.route
+        page.go("/loading")
+        time.sleep(0.05)
         page.go(route)
         page.update()
 
@@ -616,7 +618,7 @@ ft.app(
     assets_dir="assets",
     upload_dir="uploads",
     view=None,
-    port=8000,
+    port=5050,
     host="0.0.0.0",
     name ='tool',
     route_url_strategy="path"

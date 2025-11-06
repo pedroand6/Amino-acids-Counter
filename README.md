@@ -83,7 +83,7 @@ From this data, the application counts the amino acids by position in the sequen
 
     ```bash
     sudo docker pull <your-username>/amino-acids-tool:vn
-    sudo docker run -d -p 8080:8000 <your-username>/amino-acids-tool:vn
+    sudo docker run -d -p 8080:5050 <your-username>/amino-acids-tool:vn
     ```
 
 
