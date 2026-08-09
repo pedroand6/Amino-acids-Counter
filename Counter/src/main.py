@@ -30,6 +30,9 @@ def main(page: ft.Page):
 
     file_mapping = {}
 
+    global values_df
+    values_df = pd.DataFrame()
+
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.page.web and e.files:
             file_mapping.clear()
@@ -57,8 +60,15 @@ def main(page: ft.Page):
             page.update()
 
     def exportGraph(e):
+        # export pdf
         with tempfile.NamedTemporaryFile(delete=False, dir=os.path.join("Counter", "src", "assets"), suffix=".pdf") as tmp:
             graphMatPlot.figure.savefig(tmp.name, dpi=500)
+            page.launch_url(f"{os.path.basename(tmp.name)}")
+            temp_files.append(tmp.name)
+
+        # export results csv
+        with tempfile.NamedTemporaryFile(delete=False, dir=os.path.join("Counter", "src", "assets"), suffix=".csv") as tmp:
+            values_df.to_csv(tmp.name, index=False)
             page.launch_url(f"{os.path.basename(tmp.name)}")
             temp_files.append(tmp.name)
     
@@ -146,6 +156,9 @@ def main(page: ft.Page):
             cdr3 = (int(list(result.values())[0]['cdr3_start']), int(list(result.values())[0]['cdr3_end']))
         except:
             cdr3 = (0, 0)
+
+        global values_df
+        values_df = pd.DataFrame({'Position': linhas, 'Count': contador, 'Amino Acid': list(aminoacidos), 'Region': ['CDR1' if cdr1[0] <= pos <= cdr1[1] else 'CDR2' if cdr2[0] <= pos <= cdr2[1] else 'CDR3' if cdr3[0] <= pos <= cdr3[1] else 'constant' for pos in linhas]})
 
         figure = plt.figure(figsize=(12,6))
         

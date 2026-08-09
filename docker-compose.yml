@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  amino-acids-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amino_acids_tool
+    ports:
+      - "8080:5050"
+    restart: unless-stopped
