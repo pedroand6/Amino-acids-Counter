@@ -36,55 +36,15 @@ From this data, the application counts the amino acids by position in the sequen
 - Pandas
 - crowelab_pyir (and every requisite that this wrapper needs)
 
-# Build in Linux
+# Build on Docker
 
-## Locally
+First clone the repository, then run inside it:
 
-1. Create a local Docker image with the following command:
+```bash
+    docker compose up -d --build
+```
 
-    ```bash
-    sudo docker build -t amino_acids_counter .
-    ```
-
-2. Log in to your Docker account in the terminal using the following command:
-
-    ```bash
-    sudo docker login -u <your-username>
-    ```
-
-3. Use this command to create a tag for the repository:
-
-    ```bash
-    sudo docker tag amino_acids_counter:latest <your-username>/amino-acids-tool:vn
-    ```
-
-4. Finally, push your local image to the Docker Hub repository:
-
-    ```bash
-    sudo docker push <your-username>/amino-acids-tool:vn
-    ```
-
-## Server Side
-
-1. Log in to your Docker account in the terminal using the following command:
-
-    ```bash
-    sudo docker login -u <your-username>
-    ```
-
-2. See if an old version is running and if so, stop it:
-
-    ```bash
-    sudo docker ps
-    sudo docker stop <container-id>
-    ```
-
-3. Pull the image from the repository and run:
-
-    ```bash
-    sudo docker pull <your-username>/amino-acids-tool:vn
-    sudo docker run -d -p 8080:5050 <your-username>/amino-acids-tool:vn
-    ```
+Pre-built image available on [docker-hub](ttps://hub.docker.com/r/pedroand6/amino-acids-tool).
 
 
 # Contributing
